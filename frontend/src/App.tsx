@@ -1,10 +1,13 @@
-import { FormEvent, useState } from 'react';
-import * as api from './api';
-import { Recipe } from './types';
-import './App.css';
+import { FormEvent, useState } from "react";
+import { Recipe } from "./types";
+
+import * as api from "./api";
+
+import "./App.css";
+import RecipeCard from "./components/RecipeCard";
 
 const App = () => {
-  const [searchTerm, setSearchTerm] = useState("burgers");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
   const handleSearchSubmit = async (event: FormEvent) => {
@@ -15,22 +18,26 @@ const App = () => {
     } catch (e) {
       console.log(e);
     }
-  }
-  
+  };
+
   return (
     <div>
       <form onSubmit={(event) => handleSearchSubmit(event)}>
+        <input
+          type="text"
+          required
+          placeholder="Enter a search term..."
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+        ></input>
         <button type="submit">Submit</button>
       </form>
 
       {recipes.map((recipe) => (
-        <div>
-          recipe title: {recipe.title}<br/>
-          recipe image location: {recipe.image}<br/><br/>
-        </div>
+        <RecipeCard key={recipe.id} recipe={recipe} />
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
