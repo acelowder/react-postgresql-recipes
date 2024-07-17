@@ -23,4 +23,23 @@ export const searchRecipes = async (searchTerm: string, page: number) => {
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+export const getRecipeSummary = async (recipeID: string) => {
+  if (!apiKey) {
+    throw new Error("API key not found");
+  }
+
+  const url = new URL(
+    `https://api.spoonacular.com/recipes/${recipeID}/summary`
+  );
+  const params = {
+    apiKey,
+  };
+  url.search = new URLSearchParams(params).toString();
+
+  const response = await fetch(url);
+  const json = await response.json();
+
+  return json;
+};
