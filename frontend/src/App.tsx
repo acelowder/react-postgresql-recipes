@@ -14,7 +14,9 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | undefined>(undefined);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | undefined>(
+    undefined
+  );
   const pageNumber = useRef(1);
 
   useEffect(() => {
@@ -51,43 +53,69 @@ const App = () => {
     }
   };
 
+  const addFavoriteRecipe = async (recipe: Recipe) => {
+    try {
+      await api.addFavoriteRecipe(recipe);
+      setFavoriteRecipes([...favoriteRecipes, recipe]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <div className="tabs">
         <h1 onClick={() => setSelectedTab("search")}> Recipe Search </h1>
         <h1 onClick={() => setSelectedTab("favorites")}> Favorites </h1>
       </div>
-      
+
       {selectedTab === "search" && (
-      <>
-        <form onSubmit={(event) => handleSearchSubmit(event)}>
-          <input
-            type="text"
-            required
-            placeholder="Enter a search term..."
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-          ></input>
-          <button type="submit">Submit</button>
-        </form>
+        <>
+          <form onSubmit={(event) => handleSearchSubmit(event)}>
+            <input
+              type="text"
+              required
+              placeholder="Enter a search term..."
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+            ></input>
+            <button type="submit">Submit</button>
+          </form>
 
-        {recipes.map((recipe) => (
-          <RecipeCard key={recipe.id} recipe={recipe} onClick={() => setSelectedRecipe(recipe)}/>
-        ))}
+          {recipes.map((recipe) => (
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onClick={() => setSelectedRecipe(recipe)}
+              onFavorite={addFavoriteRecipe}
+            />
+          ))}
 
-        <button className="view-more-button" onClick={handleViewMoreClick}>View More</button>
-      </>
+          <button className="view-more-button" onClick={handleViewMoreClick}>
+            View More
+          </button>
+        </>
       )}
 
       {selectedTab === "favorites" && (
         <div>
           {favoriteRecipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} onClick={() => setSelectedRecipe(recipe)}/>
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onClick={() => setSelectedRecipe(recipe)}
+              onFavorite={() => undefined}
+            />
           ))}
         </div>
       )}
 
-      {selectedRecipe ? <RecipeModal recipeId={selectedRecipe.id.toString()} onClose={() => setSelectedRecipe(undefined)}/> : null}
+      {selectedRecipe ? (
+        <RecipeModal
+          recipeId={selectedRecipe.id.toString()}
+          onClose={() => setSelectedRecipe(undefined)}
+        />
+      ) : null}
     </div>
   );
 };
