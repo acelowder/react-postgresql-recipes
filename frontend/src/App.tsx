@@ -1,4 +1,4 @@
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Recipe } from "./types";
 
 import * as api from "./api";
@@ -10,11 +10,24 @@ import RecipeModal from "./components/RecipeModal";
 type Tabs = "search" | "favorites";
 
 const App = () => {
+  const [selectedTab, setSelectedTab] = useState<Tabs>("search");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<Recipe[]>([]);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | undefined>(undefined);
-  const [selectedTab, setSelectedTab] = useState<Tabs>("search");
   const pageNumber = useRef(1);
+
+  useEffect(() => {
+    const fetchFavoriteRecipes = async () => {
+      try {
+        const favoriteRecipes = await api.getFavoriteRecipes();
+        setFavoriteRecipes(favoriteRecipes.results);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchFavoriteRecipes();
+  }, []);
 
   const handleSearchSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -66,7 +79,13 @@ const App = () => {
       </>
       )}
 
-      {selectedTab === "favorites" && <div>Coming Soon</div>}
+      {selectedTab === "favorites" && (
+        <div>
+          {favoriteRecipes.map((recipe) => (
+            <RecipeCard key={recipe.id} recipe={recipe} onClick={() => setSelectedRecipe(recipe)}/>
+          ))}
+        </div>
+      )}
 
       {selectedRecipe ? <RecipeModal recipeId={selectedRecipe.id.toString()} onClose={() => setSelectedRecipe(undefined)}/> : null}
     </div>
